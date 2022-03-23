@@ -21,14 +21,14 @@ namespace CTP.FrontEnd.Views
     public partial class ChartView : INotifyPropertyChanged
     {
         private IAnalogService _service;
-        private readonly IAcCardService _cardService;
         public SeriesCollection AnalogSeries { get; set; }
         private volatile bool _stop;
         private double _lastValue;
         public ChartView() {
             InitializeComponent();
-            _cardService = new AcCardService();
-            Channel.ItemsSource = _cardService.GetChannels();
+            IAcCardService cardService = new AcCardService();
+            Channel.ItemsSource = cardService.GetChannels();
+            Stop.IsEnabled = false;
             AnalogSeries = new SeriesCollection {
                 new LineSeries {
                     Values = new ChartValues<ObservableValue>()
@@ -59,9 +59,15 @@ namespace CTP.FrontEnd.Views
             });
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e) {
+        private void StartClick(object sender, RoutedEventArgs e) {
+            if ((int)MinValue.SelectedItem >= (int)MaxValue.SelectedItem) {
+                MessageBox.Show("Minimalna wartość musi być mniejsza od maksymalnej wartości", "Błąd");
+                return;
+            }
+            Start.IsEnabled = false;
+            Stop.IsEnabled = true;
             _stop = false;
-            _service = new AnalogService(Channel.SelectedItem.ToString()!, InputConfig.SelectedItem.ToString().Equals("Synchroniczny") ? 10106 : 10083, Convert.ToInt32(MinValue.SelectedItem), Convert.ToInt32(MaxValue.SelectedItem));
+            _service = new AnalogService(Channel.SelectedItem.ToString()!, InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083, Convert.ToInt32(MinValue.SelectedItem), Convert.ToInt32(MaxValue.SelectedItem));
             try {
                 AnalogSeries.First().Values.RemoveAt(0);
             }
@@ -88,10 +94,12 @@ namespace CTP.FrontEnd.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void StopClick(object sender, RoutedEventArgs e)
         {
             _stop = true;
             AnalogSeries.First().Values = new ChartValues<ObservableValue>();
+            Stop.IsEnabled = false;
+            Start.IsEnabled = true;
         }
 
         private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -113,8 +121,18 @@ namespace CTP.FrontEnd.Views
                     "Niesynchroniczny"
                 };
             }
+            MinValue.SelectedIndex = 0;
+            MaxValue.SelectedIndex = 0;
+            InputConfig.SelectedIndex = 0;
+            AdjustAxis();
+        }
+
+        private void AdjustAxis() {
             ChartYAxis.MinValue = Convert.ToDouble(MinValue.SelectedItem);
             ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.SelectedItem);
         }
+
+        private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustAxis();
+        private void MaxValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustAxis();
     }
 }

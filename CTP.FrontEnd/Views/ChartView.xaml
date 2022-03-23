@@ -16,20 +16,20 @@
                 <Setter Property="LineSmoothness" Value="0"></Setter>
             </Style>
         </Grid.Resources>
-        <wpf:CartesianChart Margin="10,151,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
+        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
             <wpf:CartesianChart.AxisY>
                 <wpf:Axis x:Name="ChartYAxis"/>
             </wpf:CartesianChart.AxisY>
         </wpf:CartesianChart>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="10,126,0,0" VerticalAlignment="Top" Width="60" Click="Button_Click" Style="{StaticResource ButtonRevealStyle}"/>
-        <Button Content="Stop" HorizontalAlignment="Left" Margin="75,126,0,0" VerticalAlignment="Top" Width="70" Click="Button_Click_1" Style="{StaticResource ButtonRevealStyle}"/>
-        <ComboBox HorizontalAlignment="Left" Margin="10,79,0,0" VerticalAlignment="Top" Width="120" x:Name="Channel" SelectedIndex="0" SelectionChanged="Channel_OnSelectionChanged"/>
+        <Button Content="Start" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="60" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768"/>
+        <Button Content="Stop" HorizontalAlignment="Left" Margin="75,131,0,0" VerticalAlignment="Top" Width="70" Click="StopClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Stop"/>
+        <ComboBox HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top" Width="120" x:Name="Channel" SelectedIndex="0" SelectionChanged="Channel_OnSelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Minimalna wartość" VerticalAlignment="Top" Width="120"/>
         <TextBlock HorizontalAlignment="Left" Margin="160,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"><Run Language="pl-pl" Text="Maksymalna wartość"/></TextBlock>
-        <TextBlock HorizontalAlignment="Left" Margin="10,58,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
-        <TextBlock HorizontalAlignment="Left" Margin="160,58,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top"/>
-        <ComboBox HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" SelectedIndex="0"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" SelectedIndex="0"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,79,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,68,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="160,68,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" SelectedIndex="0" SelectionChanged="MinValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
+        <ComboBox HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" SelectedIndex="0" SelectionChanged="MaxValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
+        <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}"/>
     </Grid>
 </UserControl>

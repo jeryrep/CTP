@@ -5,10 +5,11 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <RootNamespace>CTPWPF.Front</RootNamespace>
+    <RootNamespace>CTP.FrontEnd</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentWPF" Version="0.10.2" />
     <PackageReference Include="LiveCharts.Wpf.Core" Version="0.9.8" />
   </ItemGroup>
 

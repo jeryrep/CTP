@@ -17,6 +17,9 @@
             </Style>
         </Grid.Resources>
         <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
+            <wpf:CartesianChart.AxisX>
+                <wpf:Axis x:Name="ChartXAxis"/>
+            </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.AxisY>
                 <wpf:Axis x:Name="ChartYAxis"/>
             </wpf:CartesianChart.AxisY>

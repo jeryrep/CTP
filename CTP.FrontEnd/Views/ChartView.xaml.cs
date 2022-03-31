@@ -19,10 +19,12 @@ namespace CTP.FrontEnd.Views;
 /// Logika interakcji dla klasy ChartView.xaml
 /// </summary>
 public partial class ChartView : INotifyPropertyChanged {
+    private const int SamplingMs = 10;
     private IAnalogService _service;
     public SeriesCollection AnalogSeries { get; set; }
     private volatile bool _stop;
     private double _lastValue;
+    private double _time = 0;
 
     public ChartView() {
         InitializeComponent();
@@ -31,7 +33,7 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = false;
         AnalogSeries = new SeriesCollection {
             new LineSeries {
-                Values = new ChartValues<ObservableValue>()
+                Values = new ChartValues<ObservablePoint>()
             }
         };
     }
@@ -45,7 +47,7 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void SetValue() {
-        var target = ((ChartValues<ObservableValue>)AnalogSeries.First().Values).Last().Value;
+        var target = ((ChartValues<ObservablePoint>)AnalogSeries.First().Values).Last().Y;
         var step = (target - _lastValue) / 4;
         Task.Run(() => {
             for (var i = 0; i < 4; i++) {
@@ -78,10 +80,13 @@ public partial class ChartView : INotifyPropertyChanged {
 
         Task.Run(() => {
             while (!_stop) {
-                Thread.Sleep(50);
+                Thread.Sleep(SamplingMs);
+                _time += SamplingMs;
                 Application.Current.Dispatcher.Invoke(() => {
-                    AnalogSeries.First().Values.Add(new ObservableValue(_service.GetAnalogReading()));
-                    SetValue();
+                    AnalogSeries.First().Values.Add(new ObservablePoint(_time, _service.GetAnalogReading()));
+                    //SetValue();
+                    if (AnalogSeries.First().Values.Count >= 100)
+                        AnalogSeries.First().Values.RemoveAt(0);
                 });
             }
         });
@@ -96,7 +101,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void StopClick(object sender, RoutedEventArgs e) {
         _stop = true;
-        AnalogSeries.First().Values = new ChartValues<ObservableValue>();
+        _time = 0;
+        AnalogSeries.First().Values.Clear();
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
     }
@@ -124,14 +130,16 @@ public partial class ChartView : INotifyPropertyChanged {
         MinValue.SelectedIndex = 0;
         MaxValue.SelectedIndex = 0;
         InputConfig.SelectedIndex = 0;
-        AdjustAxis();
+        _time = 0;
+        AdjustYAxis();
     }
 
-    private void AdjustAxis() {
+    private void AdjustYAxis()
+    {
         ChartYAxis.MinValue = Convert.ToDouble(MinValue.SelectedItem);
         ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.SelectedItem);
     }
 
-    private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustAxis();
-    private void MaxValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustAxis();
+    private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
+    private void MaxValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
 }

@@ -144,4 +144,9 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
     private void MaxValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
+
+    private void InputConfig_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
 }

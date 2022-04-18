@@ -6,34 +6,34 @@
              xmlns:wpf="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="600">
-    <Grid>
-        <Grid.Resources>
-            <Style TargetType="wpf:LineSeries">
-                <Setter Property="StrokeThickness" Value="3"></Setter>
-                <Setter Property="Stroke" Value="Red"></Setter>
-                <Setter Property="Fill" Value="#4EFFFFFF"></Setter>
-                <Setter Property="PointGeometrySize" Value="0"></Setter>
-                <Setter Property="LineSmoothness" Value="0"></Setter>
-            </Style>
-        </Grid.Resources>
-        <wpf:CartesianChart Margin="10,136,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
-            <wpf:CartesianChart.AxisX>
-                <wpf:Axis x:Name="ChartXAxis"/>
-            </wpf:CartesianChart.AxisX>
-            <wpf:CartesianChart.AxisY>
-                <wpf:Axis x:Name="ChartYAxis"/>
-            </wpf:CartesianChart.AxisY>
-        </wpf:CartesianChart>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="330,96,0,0" VerticalAlignment="Top" Width="96" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768" Height="24"/>
-        <Button Content="Stop" HorizontalAlignment="Left" Margin="474,96,0,0" VerticalAlignment="Top" Width="96" Click="StopClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Stop" Height="24"/>
-        <ComboBox HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top" Width="120" x:Name="Channel" SelectedIndex="0" SelectionChanged="Channel_OnSelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Minimalna wartość" VerticalAlignment="Top" Width="120" TextAlignment="Center"/>
-        <TextBlock HorizontalAlignment="Left" Margin="160,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextAlignment="Center"><Run Language="pl-pl" Text="Maksymalna wartość"/></TextBlock>
-        <TextBlock HorizontalAlignment="Left" Margin="10,68,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextAlignment="Center"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
-        <TextBlock HorizontalAlignment="Left" Margin="160,68,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top" Width="120" TextAlignment="Center"/>
-        <ComboBox HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" SelectedIndex="0" SelectionChanged="MinValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" SelectedIndex="0" SelectionChanged="MaxValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,30,30,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="96" Height="24" VerticalAlignment="Top" IsEnabled="False"/>
-    </Grid>
+	<Grid Background="Black">
+		<Grid.Resources>
+			<Style TargetType="wpf:LineSeries">
+				<Setter Property="StrokeThickness" Value="3"></Setter>
+				<Setter Property="Stroke" Value="Red"></Setter>
+				<Setter Property="Fill" Value="#4EFFFFFF"></Setter>
+				<Setter Property="PointGeometrySize" Value="0"></Setter>
+				<Setter Property="LineSmoothness" Value="0"></Setter>
+			</Style>
+		</Grid.Resources>
+		<wpf:CartesianChart Margin="10,136,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
+			<wpf:CartesianChart.AxisX>
+				<wpf:Axis x:Name="ChartXAxis"/>
+			</wpf:CartesianChart.AxisX>
+			<wpf:CartesianChart.AxisY>
+				<wpf:Axis x:Name="ChartYAxis"/>
+			</wpf:CartesianChart.AxisY>
+		</wpf:CartesianChart>
+		<Button Content="Start" HorizontalAlignment="Right" Margin="0,94,156,0" VerticalAlignment="Top" Width="96" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768" Height="28" Foreground="White" Background="#803CF558" BorderThickness="2,2,2,2" FontSize="16"/>
+		<Button Content="Stop" HorizontalAlignment="Right" Margin="0,94,30,0" VerticalAlignment="Top" Width="96" Click="StopClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Stop" Height="28" Background="#80BF2323" Foreground="White" FontSize="16"/>
+		<ComboBox HorizontalAlignment="Left" Margin="29,90,0,0" VerticalAlignment="Top" Width="140" x:Name="Channel" SelectedIndex="0" SelectionChanged="Channel_OnSelectionChanged" Style="{StaticResource ComboBoxRevealStyle}" Background="#66202123" Foreground="White"/>
+		<TextBlock HorizontalAlignment="Left" Margin="29,10,0,0" TextWrapping="Wrap" Text="Minimalna wartość" VerticalAlignment="Top" Width="140" TextAlignment="Left" FontSize="14"/>
+		<TextBlock HorizontalAlignment="Left" Margin="190,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" TextAlignment="Left" FontSize="14"><Run Language="pl-pl" Text="Maksymalna wartość"/></TextBlock>
+		<TextBlock HorizontalAlignment="Left" Margin="29,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" TextAlignment="Left" FontSize="14"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
+		<TextBlock HorizontalAlignment="Left" Margin="190,71,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top" Width="140" TextAlignment="Left" FontSize="14"/>
+		<ComboBox HorizontalAlignment="Left" Margin="29,31,0,0" VerticalAlignment="Top" Width="140" x:Name="MinValue" SelectedIndex="0" SelectionChanged="MinValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}" Background="#66202123" Foreground="White"/>
+		<ComboBox HorizontalAlignment="Left" Margin="190,31,0,0" VerticalAlignment="Top" Width="140" x:Name="MaxValue" SelectedIndex="0" SelectionChanged="MaxValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}" Foreground="White" Background="#66202123"/>
+		<ComboBox HorizontalAlignment="Left" Margin="190,90,0,0" VerticalAlignment="Top" Width="140" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}" SelectionChanged="InputConfig_SelectionChanged" Foreground="White" Background="#66202123"/>
+		<Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,34,30,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="96" Height="28" VerticalAlignment="Top" IsEnabled="False" Foreground="Black" Background="#80FFFFFF" FontSize="16"/>
+	</Grid>
 </UserControl>

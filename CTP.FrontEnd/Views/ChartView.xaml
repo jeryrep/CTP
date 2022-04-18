@@ -31,9 +31,9 @@
         <TextBlock HorizontalAlignment="Left" Margin="160,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"><Run Language="pl-pl" Text="Maksymalna wartość"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" Margin="10,68,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" Margin="160,68,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top"/>
-        <ComboBox HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" SelectedIndex="0" SelectionChanged="MinValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" SelectedIndex="0" SelectionChanged="MaxValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,131,10,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="70" Height="18" VerticalAlignment="Top" IsEnabled="False"/>
+        <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="170" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}" SelectionChanged="InputConfig_SelectionChanged"/>
+        <Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,105,10,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="80" Height="45" VerticalAlignment="Top" IsEnabled="False"/>
+        <Slider HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" ValueChanged="MinValue_ValueChanged" TickFrequency="1" AutoToolTipPlacement="TopLeft"/>
+        <Slider HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" ValueChanged="MaxValue_ValueChanged" TickFrequency="1" AutoToolTipPlacement="TopLeft"/>
     </Grid>
 </UserControl>

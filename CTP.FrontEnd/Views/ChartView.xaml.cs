@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -43,20 +44,21 @@ public partial class ChartView : INotifyPropertyChanged {
     private void StartClick(object sender, RoutedEventArgs e) {
         _time = 0;
         AnalogSeries.First().Values.Clear();
-        if ((int)MinValue.SelectedItem >= (int)MaxValue.SelectedItem) {
+        if ((int)MinValue.Value >= (int)MaxValue.Value) {
             MessageBox.Show("Minimalna wartość musi być mniejsza od maksymalnej wartości", "Błąd");
             return;
         }
 
         _values = new List<double>();
-
+        MaxValue.IsEnabled = false;
+        MinValue.IsEnabled = false;
         Start.IsEnabled = false;
         Stop.IsEnabled = true;
         Save.IsEnabled = false;
         _stop = false;
         _service = new AnalogService(Channel.SelectedItem.ToString()!,
             InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083,
-            Convert.ToInt32(MinValue.SelectedItem), Convert.ToInt32(MaxValue.SelectedItem));
+            Convert.ToInt32(MinValue.Value), Convert.ToInt32(MaxValue.Value));
         try {
             AnalogSeries.First().Values.RemoveAt(0);
         }
@@ -84,6 +86,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void StopClick(object sender, RoutedEventArgs e) {
         _stop = true;
+        MaxValue.IsEnabled = true;
+        MinValue.IsEnabled = true;
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
@@ -94,49 +98,68 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void SwitchChannelsConfiguration() {
-        if (Channel.SelectedIndex < 4) {
-            MinValue.ItemsSource = Enumerable.Range(-20, 41);
-            MaxValue.ItemsSource = Enumerable.Range(-20, 41).Reverse();
+        if (Channel.SelectedValue.ToString()![^1] - '0' < 4) {
             InputConfig.ItemsSource = new List<string> {
                 "Synchroniczny", "Niesynchroniczny"
             };
+            MinValue.Minimum = -20;
+            MinValue.Maximum = 20;
+            MaxValue.Minimum = -20;
+            MaxValue.Maximum = 20;
         }
         else {
-            MinValue.ItemsSource = Enumerable.Range(-10, 21);
-            MaxValue.ItemsSource = Enumerable.Range(-10, 21).Reverse();
             InputConfig.ItemsSource = new List<string> {
                 "Niesynchroniczny"
             };
+            MinValue.Minimum = -10;
+            MinValue.Maximum = 10;
+            MaxValue.Minimum = -10;
+            MaxValue.Maximum = 10;
         }
-
-        MinValue.SelectedIndex = 0;
-        MaxValue.SelectedIndex = 0;
         InputConfig.SelectedIndex = 0;
+        MinValue.Value = MinValue.Minimum;
+        MaxValue.Value = MaxValue.Maximum;
         _time = 0;
         AdjustYAxis();
     }
 
-    private void AdjustYAxis()
-    {
-        ChartYAxis.MinValue = Convert.ToDouble(MinValue.SelectedItem);
-        ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.SelectedItem);
-    }
-    private void btnSaveFile_Click(object sender, RoutedEventArgs e)
-    {
-
-        SaveFileDialog saveFileDialog = new SaveFileDialog();
-        saveFileDialog.Filter = "Skoroszyt programu Excel (*.xlsx)|*.xlsx|Skoroszyt programu Excel 97-2003 (*.xls)|*.xls";
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            var items = Enumerable.Range(0, _values.Count).Select(x => new
-            {
-                Time = (double)(x * SamplingMs) / 1000,
-                Reading = _values[x]
-            }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
-            File.WriteAllBytes(saveFileDialog.FileName, items);
+    private void SwitchChannelVoltageRange() {
+        if (InputConfig.SelectedValue == null) return;
+        if (InputConfig.SelectedValue.ToString()!.Equals("Synchroniczny")) {
+            MinValue.Minimum = -20;
+            MinValue.Maximum = 20;
+            MaxValue.Minimum = -20;
+            MaxValue.Maximum = 20;
+        } else {
+            MinValue.Minimum = -10;
+            MinValue.Maximum = 10;
+            MaxValue.Minimum = -10;
+            MaxValue.Maximum = 10;
         }
     }
 
-    private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
-    private void MaxValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();
+    private void AdjustYAxis()
+    {
+        ChartYAxis.MinValue = Convert.ToDouble(MinValue.Value);
+        ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.Value);
+    }
+    private void btnSaveFile_Click(object sender, RoutedEventArgs e)
+    {
+        var saveFileDialog = new SaveFileDialog {
+            Filter = "Skoroszyt programu Excel (*.xlsx)|*.xlsx|Skoroszyt programu Excel 97-2003 (*.xls)|*.xls"
+        };
+        if (saveFileDialog.ShowDialog() != true) return;
+        var items = Enumerable.Range(0, _values.Count).Select(x => new
+        {
+            Time = (double)(x * SamplingMs) / 1000,
+            Reading = _values[x]
+        }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
+        File.WriteAllBytes(saveFileDialog.FileName, items);
+    }
+
+    private void MinValue_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => AdjustYAxis();
+
+    private void MaxValue_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => AdjustYAxis();
+
+    private void InputConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) => SwitchChannelVoltageRange();
 }

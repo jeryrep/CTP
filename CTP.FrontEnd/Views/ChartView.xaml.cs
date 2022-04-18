@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using ArrayToExcel;
 using CTP.Api.Interfaces;
 using CTP.Api.Services;
 using LiveCharts;
@@ -22,9 +23,10 @@ public partial class ChartView : INotifyPropertyChanged {
     private const int SamplingMs = 10;
     private IAnalogService _service;
     public SeriesCollection AnalogSeries { get; set; }
+    private List<double> _values;
     private volatile bool _stop;
     private double _lastValue;
-    private double _time = 0;
+    private double _time;
 
     public ChartView() {
         InitializeComponent();
@@ -38,32 +40,13 @@ public partial class ChartView : INotifyPropertyChanged {
         };
     }
 
-    public double LastValue {
-        get => _lastValue;
-        set {
-            _lastValue = value;
-            OnPropertyChanged();
-        }
-    }
-
-    private void SetValue() {
-        var target = ((ChartValues<ObservablePoint>)AnalogSeries.First().Values).Last().Y;
-        var step = (target - _lastValue) / 4;
-        Task.Run(() => {
-            for (var i = 0; i < 4; i++) {
-                Thread.Sleep(10);
-                LastValue += step;
-            }
-
-            LastValue = target;
-        });
-    }
-
     private void StartClick(object sender, RoutedEventArgs e) {
         if ((int)MinValue.SelectedItem >= (int)MaxValue.SelectedItem) {
             MessageBox.Show("Minimalna wartość musi być mniejsza od maksymalnej wartości", "Błąd");
             return;
         }
+
+        _values = new List<double>();
 
         Start.IsEnabled = false;
         Stop.IsEnabled = true;
@@ -83,8 +66,9 @@ public partial class ChartView : INotifyPropertyChanged {
                 Thread.Sleep(SamplingMs);
                 _time += SamplingMs;
                 Application.Current.Dispatcher.Invoke(() => {
-                    AnalogSeries.First().Values.Add(new ObservablePoint(_time, _service.GetAnalogReading()));
-                    //SetValue();
+                    var reading = _service.GetAnalogReading();
+                    AnalogSeries.First().Values.Add(new ObservablePoint(_time, reading));
+                    _values.Add(reading);
                     if (AnalogSeries.First().Values.Count >= 100)
                         AnalogSeries.First().Values.RemoveAt(0);
                 });
@@ -95,16 +79,17 @@ public partial class ChartView : INotifyPropertyChanged {
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     private void StopClick(object sender, RoutedEventArgs e) {
         _stop = true;
         _time = 0;
         AnalogSeries.First().Values.Clear();
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
+        var items = Enumerable.Range(0, _values.Count).Select(x => new {
+            Time = (double) (x * SamplingMs) / 1000,
+            Reading = _values[x]
+        }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
+        File.WriteAllBytes("daqmx.xlsx", items);
     }
 
     private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {

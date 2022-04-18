@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ArrayToExcel" Version="2.0.7" />
     <PackageReference Include="FluentWPF" Version="0.10.2" />
     <PackageReference Include="LiveCharts.Wpf.Core" Version="0.9.8" />
   </ItemGroup>

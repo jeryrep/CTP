@@ -13,6 +13,7 @@ using CTP.Api.Services;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using Microsoft.Win32;
 
 namespace CTP.FrontEnd.Views; 
 
@@ -50,6 +51,7 @@ public partial class ChartView : INotifyPropertyChanged {
 
         Start.IsEnabled = false;
         Stop.IsEnabled = true;
+        Save.IsEnabled = false;
         _stop = false;
         _service = new AnalogService(Channel.SelectedItem.ToString()!,
             InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083,
@@ -85,11 +87,12 @@ public partial class ChartView : INotifyPropertyChanged {
         AnalogSeries.First().Values.Clear();
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
-        var items = Enumerable.Range(0, _values.Count).Select(x => new {
-            Time = (double) (x * SamplingMs) / 1000,
-            Reading = _values[x]
-        }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
-        File.WriteAllBytes("daqmx.xlsx", items);
+        Save.IsEnabled = true;
+        //var items = Enumerable.Range(0, _values.Count).Select(x => new {
+        //    Time = (double) (x * SamplingMs) / 1000,
+        //    Reading = _values[x]
+        //}).ToExcel(x => x.SheetName("DAQMx Reading Session"));
+        //File.WriteAllBytes("daqmx.xlsx", items);
     }
 
     private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -123,6 +126,21 @@ public partial class ChartView : INotifyPropertyChanged {
     {
         ChartYAxis.MinValue = Convert.ToDouble(MinValue.SelectedItem);
         ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.SelectedItem);
+    }
+    private void btnSaveFile_Click(object sender, RoutedEventArgs e)
+    {
+
+        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = "Skoroszyt programu Excel (*.xlsx)|*.xlsx|Skoroszyt programu Excel 97-2003 (*.xls)|*.xls";
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            var items = Enumerable.Range(0, _values.Count).Select(x => new
+            {
+                Time = (double)(x * SamplingMs) / 1000,
+                Reading = _values[x]
+            }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
+            File.WriteAllBytes(saveFileDialog.FileName, items);
+        }
     }
 
     private void MinValue_SelectionChanged(object sender, SelectionChangedEventArgs e) => AdjustYAxis();

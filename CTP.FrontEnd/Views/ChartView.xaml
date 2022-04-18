@@ -34,5 +34,6 @@
         <ComboBox HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" SelectedIndex="0" SelectionChanged="MinValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
         <ComboBox HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" SelectedIndex="0" SelectionChanged="MaxValue_SelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
         <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}"/>
+        <Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,131,10,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="70" Height="18" VerticalAlignment="Top" IsEnabled="False"/>
     </Grid>
 </UserControl>

@@ -41,6 +41,8 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        _time = 0;
+        AnalogSeries.First().Values.Clear();
         if ((int)MinValue.SelectedItem >= (int)MaxValue.SelectedItem) {
             MessageBox.Show("Minimalna wartość musi być mniejsza od maksymalnej wartości", "Błąd");
             return;
@@ -82,16 +84,9 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void StopClick(object sender, RoutedEventArgs e) {
         _stop = true;
-        _time = 0;
-        AnalogSeries.First().Values.Clear();
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
-        //var items = Enumerable.Range(0, _values.Count).Select(x => new {
-        //    Time = (double) (x * SamplingMs) / 1000,
-        //    Reading = _values[x]
-        //}).ToExcel(x => x.SheetName("DAQMx Reading Session"));
-        //File.WriteAllBytes("daqmx.xlsx", items);
     }
 
     private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {

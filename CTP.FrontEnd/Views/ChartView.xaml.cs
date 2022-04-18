@@ -26,7 +26,6 @@ public partial class ChartView : INotifyPropertyChanged {
     public SeriesCollection AnalogSeries { get; set; }
     private List<double> _values;
     private volatile bool _stop;
-    private double _lastValue;
     private double _time;
 
     public ChartView() {

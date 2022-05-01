@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using ArrayToExcel;
 using CTP.Api.Interfaces;
 using CTP.Api.Services;
@@ -26,7 +26,7 @@ public partial class ChartView : INotifyPropertyChanged {
     private IAnalogService _service;
     public SeriesCollection AnalogSeries { get; set; }
     private List<double> _values;
-    private volatile bool _stop;
+    public static volatile bool _stop;
     private double _time;
 
     public ChartView() {
@@ -36,6 +36,7 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = false;
         AnalogSeries = new SeriesCollection {
             new LineSeries {
+                Fill = Brushes.Transparent,
                 Values = new ChartValues<ObservablePoint>()
             }
         };
@@ -50,6 +51,7 @@ public partial class ChartView : INotifyPropertyChanged {
         }
 
         _values = new List<double>();
+        LoadButton.IsEnabled = false;
         MaxValue.IsEnabled = false;
         MinValue.IsEnabled = false;
         Start.IsEnabled = false;
@@ -86,11 +88,15 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void StopClick(object sender, RoutedEventArgs e) {
         _stop = true;
+        LoadButton.IsEnabled = true;
         MaxValue.IsEnabled = true;
         MinValue.IsEnabled = true;
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
+        AnalogSeries.First().Values.Clear();
+        for (var i = 0; i < _values.Count; i++)
+            AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _values[i]));
     }
 
     private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -162,4 +168,13 @@ public partial class ChartView : INotifyPropertyChanged {
     private void MaxValue_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => AdjustYAxis();
 
     private void InputConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) => SwitchChannelVoltageRange();
+
+    //TODO: Zaimplementować wczytywanie danych na wykres z csv z teamsa
+    private void LoadButton_Click(object sender, RoutedEventArgs e) {
+        string path;
+        /*var openFile = new OpenFileDialog();
+        if (openFile.ShowDialog()) {
+            path = File
+        }*/
+    }
 }

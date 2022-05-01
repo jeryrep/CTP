@@ -18,10 +18,10 @@
         </Grid.Resources>
         <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
             <wpf:CartesianChart.AxisX>
-                <wpf:Axis x:Name="ChartXAxis"/>
+                <wpf:Axis x:Name="ChartXAxis" Title="t [ms]"/>
             </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.AxisY>
-                <wpf:Axis x:Name="ChartYAxis"/>
+                <wpf:Axis x:Name="ChartYAxis" Title="Amplitude [V]"/>
             </wpf:CartesianChart.AxisY>
         </wpf:CartesianChart>
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="60" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768"/>
@@ -35,5 +35,6 @@
         <Button Content="Zapisz dane" Name="Save" Click="btnSaveFile_Click" Style="{StaticResource ButtonRevealStyle}" Margin="0,105,10,0" MinWidth="70" MinHeight="19" HorizontalAlignment="Right" Width="80" Height="45" VerticalAlignment="Top" IsEnabled="False"/>
         <Slider HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MinValue" ValueChanged="MinValue_ValueChanged" TickFrequency="1" AutoToolTipPlacement="TopLeft"/>
         <Slider HorizontalAlignment="Left" Margin="160,31,0,0" VerticalAlignment="Top" Width="120" x:Name="MaxValue" ValueChanged="MaxValue_ValueChanged" TickFrequency="1" AutoToolTipPlacement="TopLeft"/>
+        <Button Content="Wczytaj dane" Margin="0,68,10,0" VerticalAlignment="Top" Height="32" x:Name="LoadButton" Style="{StaticResource ButtonRevealStyle}" Click="LoadButton_Click" HorizontalAlignment="Right" Width="80"/>
     </Grid>
 </UserControl>

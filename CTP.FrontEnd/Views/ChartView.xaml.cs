@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using ArrayToExcel;
 using CTP.Api.Interfaces;
@@ -26,6 +28,7 @@ public partial class ChartView : INotifyPropertyChanged {
     private IAnalogService _service;
     public SeriesCollection AnalogSeries { get; set; }
     private List<double> _values;
+    private List<double> _realValues;
     public static volatile bool _stop;
     private double _time;
 
@@ -43,6 +46,7 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        DefaultChartParameters();
         _time = 0;
         AnalogSeries.First().Values.Clear();
         if ((int)MinValue.Value >= (int)MaxValue.Value) {
@@ -94,6 +98,8 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
+        _realValues = new List<double>();
+        GetRealValue();
         AnalogSeries.First().Values.Clear();
         for (var i = 0; i < _values.Count; i++)
             AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _values[i]));
@@ -155,10 +161,11 @@ public partial class ChartView : INotifyPropertyChanged {
             Filter = "Skoroszyt programu Excel (*.xlsx)|*.xlsx|Skoroszyt programu Excel 97-2003 (*.xls)|*.xls"
         };
         if (saveFileDialog.ShowDialog() != true) return;
-        var items = Enumerable.Range(0, _values.Count).Select(x => new
+        var items = Enumerable.Range(0, _values.Count-1).Select(x => new
         {
             Time = (double)(x * SamplingMs) / 1000,
-            Reading = _values[x]
+            Reading = _values[x],
+            RealValues = _realValues[x]
         }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
         File.WriteAllBytes(saveFileDialog.FileName, items);
     }
@@ -176,5 +183,54 @@ public partial class ChartView : INotifyPropertyChanged {
         if (openFile.ShowDialog()) {
             path = File
         }*/
+    }
+
+    private void Calculate_Click(object sender, RoutedEventArgs e)
+    {
+        ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
+        ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
+
+        AnalogSeries.First().Values.Clear();
+        for (var i = 0; i < _realValues.Count; i++)
+        {
+            AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
+        }
+        ChartYAxis.Title = "Długość [mm]";
+
+    }
+
+    private void DefaultChartParameters()
+    {
+        ChartYAxis.Title = "Amplitude [V]";
+        AdjustYAxis();
+    }
+
+    private (int a, int b) GetAAndB(int maxRange, int minRange, int maxValue, int minValue)
+    {
+        var a = (maxRange - minRange) / (maxValue - minValue);
+        var Y = a * maxValue + 0;
+        var b = maxRange - Y;
+        return (a, b);
+    }
+    private void GetRealValue()
+    {
+        int maxRange = int.Parse(MaxRange.Text);
+        int minRange = int.Parse(MinRange.Text);
+        int maxValue = (int)MaxValue.Value;
+        int minValue = (int)MinValue.Value;
+        var AAndB = GetAAndB(maxRange, minRange, maxValue, minValue);
+
+
+        for (var i = 0; i < _values.Count; i++)
+        {
+            _realValues.Add(_values[i] * AAndB.a + AAndB.b);
+        }
+
+    }
+
+    private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+    {
+        Regex regex = new Regex("[^0-9]+");
+        e.Handled = regex.IsMatch(e.Text);
     }
 }

@@ -16,7 +16,7 @@
                 <Setter Property="LineSmoothness" Value="0"></Setter>
             </Style>
         </Grid.Resources>
-        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart">
+        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart" DisableAnimations="True">
             <wpf:CartesianChart.AxisX>
                 <wpf:Axis x:Name="ChartXAxis" Title="t [ms]"/>
             </wpf:CartesianChart.AxisX>
@@ -42,8 +42,8 @@
         <TextBlock HorizontalAlignment="Left" Margin="430,10,0,0" TextWrapping="Wrap" Text="Koniec zakresu" VerticalAlignment="Top"/>
         <Button x:Name="Calculate" Content="Przelicz" HorizontalAlignment="Left" Margin="555,30,0,0" VerticalAlignment="Top" Style="{StaticResource ButtonRevealStyle}" Click="Calculate_Click" IsEnabled="False"/>
         <StackPanel Margin="345,89,110,279">
-            <RadioButton x:Name="VoltageValue" Content="Wartość napięcia" IsChecked="True" Checked="VoltageValue_Checked"/>
-            <RadioButton x:Name="PhysicalValue" Content="Wartość fizyczna" Checked="PhysicalValue_Checked"/>
+            <RadioButton x:Name="VoltageValue" Content="Wartość napięcia" IsChecked="True" Checked="VoltageValue_Checked" Foreground="White"/>
+            <RadioButton x:Name="PhysicalValue" Content="Wartość fizyczna" Checked="PhysicalValue_Checked" Foreground="White"/>
         </StackPanel>
     </Grid>
 </UserControl>

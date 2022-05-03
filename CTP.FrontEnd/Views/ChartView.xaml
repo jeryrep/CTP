@@ -27,8 +27,8 @@
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="60" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768"/>
         <Button Content="Stop" HorizontalAlignment="Left" Margin="75,131,0,0" VerticalAlignment="Top" Width="70" Click="StopClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Stop"/>
         <ComboBox HorizontalAlignment="Left" Margin="10,89,0,0" VerticalAlignment="Top" Width="120" x:Name="Channel" SelectedIndex="0" SelectionChanged="Channel_OnSelectionChanged" Style="{StaticResource ComboBoxRevealStyle}"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Minimalna wartość" VerticalAlignment="Top" Width="120"/>
-        <TextBlock HorizontalAlignment="Left" Margin="160,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"><Run Language="pl-pl" Text="Maksymalna wartość"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Minimalna wartość [V]" VerticalAlignment="Top" Width="120"/>
+        <TextBlock HorizontalAlignment="Left" Margin="160,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="130"><Run Language="pl-pl" Text="Maksymalna wartość [V]"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" Margin="10,68,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="pl-pl" Text="Numer kanału"/></TextBlock>
         <TextBlock HorizontalAlignment="Left" Margin="160,68,0,0" TextWrapping="Wrap" Text="Konfiguracja wejścia" VerticalAlignment="Top"/>
         <ComboBox HorizontalAlignment="Left" Margin="160,89,0,0" VerticalAlignment="Top" Width="170" RenderTransformOrigin="0.185,0.082" x:Name="InputConfig" SelectedIndex="0" Style="{StaticResource ComboBoxRevealStyle}" SelectionChanged="InputConfig_SelectionChanged"/>
@@ -38,8 +38,8 @@
         <Button Content="Wczytaj dane" Margin="0,68,10,0" VerticalAlignment="Top" Height="32" x:Name="LoadButton" Style="{StaticResource ButtonRevealStyle}" Click="LoadButton_Click" HorizontalAlignment="Right" Width="80"/>
         <TextBox x:Name="MinRange" HorizontalAlignment="Left" Margin="300,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox" Text="0"/>
         <TextBox x:Name="MaxRange" HorizontalAlignment="Left" Margin="430,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox" Text="100"/>
-        <TextBlock HorizontalAlignment="Left" Margin="300,10,0,0" TextWrapping="Wrap" Text="Początek zakresu" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="430,10,0,0" TextWrapping="Wrap" Text="Koniec zakresu" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="300,10,0,0" TextWrapping="Wrap" Text="Początek zakresu [mm]" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="430,10,0,0" TextWrapping="Wrap" Text="Koniec zakresu [mm]" VerticalAlignment="Top"/>
         <Button x:Name="Calculate" Content="Przelicz" HorizontalAlignment="Left" Margin="555,30,0,0" VerticalAlignment="Top" Style="{StaticResource ButtonRevealStyle}" Click="Calculate_Click" IsEnabled="False"/>
         <StackPanel Margin="345,89,110,279">
             <RadioButton x:Name="VoltageValue" Content="Wartość napięcia" IsChecked="True" Checked="VoltageValue_Checked" Foreground="White"/>

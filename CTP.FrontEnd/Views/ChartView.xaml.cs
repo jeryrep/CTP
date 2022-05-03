@@ -267,7 +267,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void PhysicalValue_Checked(object sender, RoutedEventArgs e)
     {
-        if(_stop==true)
+        ChangeAxis("Długość [mm]");
+        if (_stop==true)
         {
             DrawChart();
         }
@@ -275,7 +276,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void VoltageValue_Checked(object sender, RoutedEventArgs e)
     {
-        if(_stop==true)
+        ChangeAxis("Amplituda [V]");
+        if (_stop==true)
         {
             DrawChart();
         }

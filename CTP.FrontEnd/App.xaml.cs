@@ -1,8 +1,7 @@
-﻿namespace CTP.FrontEnd
-{
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App {
-    }
+﻿namespace CTP.FrontEnd; 
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App {
 }

@@ -161,7 +161,7 @@ public partial class ChartView : INotifyPropertyChanged {
             Filter = "Skoroszyt programu Excel (*.xlsx)|*.xlsx|Skoroszyt programu Excel 97-2003 (*.xls)|*.xls"
         };
         if (saveFileDialog.ShowDialog() != true) return;
-        var items = Enumerable.Range(0, _values.Count).Select(x => new
+        var items = Enumerable.Range(0, _values.Count-1).Select(x => new
         {
             Time = (double)(x * SamplingMs) / 1000,
             Reading = _values[x],

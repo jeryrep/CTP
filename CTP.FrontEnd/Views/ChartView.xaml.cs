@@ -98,6 +98,8 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
+        _realValues = new List<double>();
+        GetRealValue();
         AnalogSeries.First().Values.Clear();
         for (var i = 0; i < _values.Count; i++)
             AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _values[i]));
@@ -163,6 +165,7 @@ public partial class ChartView : INotifyPropertyChanged {
         {
             Time = (double)(x * SamplingMs) / 1000,
             Reading = _values[x],
+            RealValues = _realValues[x]
         }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
         File.WriteAllBytes(saveFileDialog.FileName, items);
     }
@@ -184,21 +187,12 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void Calculate_Click(object sender, RoutedEventArgs e)
     {
-        int maxRange = int.Parse(MaxRange.Text);
-        int minRange = int.Parse(MinRange.Text);
-        int maxValue = (int)MaxValue.Value;
-        int minValue = (int)MinValue.Value;
-
-        ChartYAxis.MinValue = Convert.ToDouble(minRange);
-        ChartYAxis.MaxValue = Convert.ToDouble(maxRange);
-
-        var AAndB = GetAAndB(maxRange, minRange, maxValue, minValue); 
+        ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
+        ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
 
         AnalogSeries.First().Values.Clear();
-        _realValues = new List<double>();
-        for (var i = 0; i < _values.Count; i++)
+        for (var i = 0; i < _realValues.Count; i++)
         {
-            _realValues.Add(_values[i] * AAndB.a + AAndB.b);
             AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
         }
         ChartYAxis.Title = "Długość [mm]";
@@ -215,8 +209,23 @@ public partial class ChartView : INotifyPropertyChanged {
     {
         var a = (maxRange - minRange) / (maxValue - minValue);
         var Y = a * maxValue + 0;
-        var b = int.Parse(MaxRange.Text) - Y;
+        var b = maxRange - Y;
         return (a, b);
+    }
+    private void GetRealValue()
+    {
+        int maxRange = int.Parse(MaxRange.Text);
+        int minRange = int.Parse(MinRange.Text);
+        int maxValue = (int)MaxValue.Value;
+        int minValue = (int)MinValue.Value;
+        var AAndB = GetAAndB(maxRange, minRange, maxValue, minValue);
+
+
+        for (var i = 0; i < _values.Count; i++)
+        {
+            _realValues.Add(_values[i] * AAndB.a + AAndB.b);
+        }
+
     }
 
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)

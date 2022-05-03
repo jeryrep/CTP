@@ -21,7 +21,7 @@
                 <wpf:Axis x:Name="ChartXAxis" Title="t [ms]"/>
             </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.AxisY>
-                <wpf:Axis x:Name="ChartYAxis" Title="Amplitude [V]"/>
+                <wpf:Axis x:Name="ChartYAxis" Title="Amplituda [V]"/>
             </wpf:CartesianChart.AxisY>
         </wpf:CartesianChart>
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="60" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768"/>
@@ -39,7 +39,11 @@
         <TextBox x:Name="MinRange" HorizontalAlignment="Left" Margin="300,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox" Text="0"/>
         <TextBox x:Name="MaxRange" HorizontalAlignment="Left" Margin="430,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" PreviewTextInput="NumberValidationTextBox" Text="100"/>
         <TextBlock HorizontalAlignment="Left" Margin="300,10,0,0" TextWrapping="Wrap" Text="Początek zakresu" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="430,10,0,0" TextWrapping="Wrap" Text="Maksymalny zakres" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="430,10,0,0" TextWrapping="Wrap" Text="Koniec zakresu" VerticalAlignment="Top"/>
         <Button x:Name="Calculate" Content="Przelicz" HorizontalAlignment="Left" Margin="555,30,0,0" VerticalAlignment="Top" Style="{StaticResource ButtonRevealStyle}" Click="Calculate_Click" IsEnabled="False"/>
+        <StackPanel Margin="345,89,110,279">
+            <RadioButton x:Name="VoltageValue" Content="Wartość napięcia" IsChecked="True" Checked="VoltageValue_Checked"/>
+            <RadioButton x:Name="PhysicalValue" Content="Wartość fizyczna" Checked="PhysicalValue_Checked"/>
+        </StackPanel>
     </Grid>
 </UserControl>

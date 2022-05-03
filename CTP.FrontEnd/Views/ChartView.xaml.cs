@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using ArrayToExcel;
 using CTP.Api.Interfaces;
@@ -26,6 +28,7 @@ public partial class ChartView : INotifyPropertyChanged {
     private IAnalogService _service;
     public SeriesCollection AnalogSeries { get; set; }
     private List<double> _values;
+    private List<double> _realValues;
     public static volatile bool _stop;
     private double _time;
 
@@ -176,5 +179,31 @@ public partial class ChartView : INotifyPropertyChanged {
         if (openFile.ShowDialog()) {
             path = File
         }*/
+    }
+
+    private void Calculate_Click(object sender, RoutedEventArgs e)
+    {
+        var a =  (int.Parse(MaxRange.Text)- int.Parse(MinRange.Text))/(((int)MaxValue.Value)-(int)MinValue.Value);
+        var X1 = a*(int)MinValue.Value+0;
+        var X2 = a*(int)MaxValue.Value+0;
+        var b = int.Parse(MaxRange.Text) - X2;
+        ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
+        ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
+
+        AnalogSeries.First().Values.Clear();
+        _realValues = new List<double>();
+        for (var i = 0; i < _values.Count; i++)
+        {
+            _realValues.Add(_values[i] * a + b);
+            AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
+        }
+        ChartYAxis.Title = "Długość [mm]";
+
+    }
+
+    private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+    {
+        Regex regex = new Regex("[^0-9]+");
+        e.Handled = regex.IsMatch(e.Text);
     }
 }

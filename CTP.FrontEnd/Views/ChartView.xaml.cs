@@ -46,6 +46,7 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        DefaultChartParameters();
         _time = 0;
         AnalogSeries.First().Values.Clear();
         if ((int)MinValue.Value >= (int)MaxValue.Value) {
@@ -161,7 +162,7 @@ public partial class ChartView : INotifyPropertyChanged {
         var items = Enumerable.Range(0, _values.Count).Select(x => new
         {
             Time = (double)(x * SamplingMs) / 1000,
-            Reading = _values[x]
+            Reading = _values[x],
         }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
         File.WriteAllBytes(saveFileDialog.FileName, items);
     }
@@ -183,22 +184,39 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void Calculate_Click(object sender, RoutedEventArgs e)
     {
-        var a =  (int.Parse(MaxRange.Text)- int.Parse(MinRange.Text))/(((int)MaxValue.Value)-(int)MinValue.Value);
-        var X1 = a*(int)MinValue.Value+0;
-        var X2 = a*(int)MaxValue.Value+0;
-        var b = int.Parse(MaxRange.Text) - X2;
-        ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
-        ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
+        int maxRange = int.Parse(MaxRange.Text);
+        int minRange = int.Parse(MinRange.Text);
+        int maxValue = (int)MaxValue.Value;
+        int minValue = (int)MinValue.Value;
+
+        ChartYAxis.MinValue = Convert.ToDouble(minRange);
+        ChartYAxis.MaxValue = Convert.ToDouble(maxRange);
+
+        var AAndB = GetAAndB(maxRange, minRange, maxValue, minValue); 
 
         AnalogSeries.First().Values.Clear();
         _realValues = new List<double>();
         for (var i = 0; i < _values.Count; i++)
         {
-            _realValues.Add(_values[i] * a + b);
+            _realValues.Add(_values[i] * AAndB.a + AAndB.b);
             AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
         }
         ChartYAxis.Title = "Długość [mm]";
 
+    }
+
+    private void DefaultChartParameters()
+    {
+        ChartYAxis.Title = "Amplitude [V]";
+        AdjustYAxis();
+    }
+
+    private (int a, int b) GetAAndB(int maxRange, int minRange, int maxValue, int minValue)
+    {
+        var a = (maxRange - minRange) / (maxValue - minValue);
+        var Y = a * maxValue + 0;
+        var b = int.Parse(MaxRange.Text) - Y;
+        return (a, b);
     }
 
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)

@@ -46,6 +46,8 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        _values = new List<double>();
+        _realValues = new List<double>();
         DefaultChartParameters();
         _time = 0;
         AnalogSeries.First().Values.Clear();
@@ -54,7 +56,6 @@ public partial class ChartView : INotifyPropertyChanged {
             return;
         }
 
-        _values = new List<double>();
         LoadButton.IsEnabled = false;
         MaxValue.IsEnabled = false;
         MinValue.IsEnabled = false;
@@ -62,10 +63,12 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = true;
         Save.IsEnabled = false;
         Calculate.IsEnabled = false;
+        VoltageValue.IsChecked = true;
         _stop = false;
         _service = new AnalogService(Channel.SelectedItem.ToString()!,
             InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083,
             Convert.ToInt32(MinValue.Value), Convert.ToInt32(MaxValue.Value));
+        var AAndB = GetAAndB();
         try {
             AnalogSeries.First().Values.RemoveAt(0);
         }
@@ -79,10 +82,19 @@ public partial class ChartView : INotifyPropertyChanged {
                 _time += SamplingMs;
                 Application.Current.Dispatcher.Invoke(() => {
                     var reading = _service.GetAnalogReading();
-                    AnalogSeries.First().Values.Add(new ObservablePoint(_time, reading));
+                    var realReading = reading * AAndB.a + AAndB.b;
+                    if (VoltageValue.IsChecked == true)
+                    {
+                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, reading));
+                    } else
+                    {
+                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, realReading));
+                    }
+                    
                     _values.Add(reading);
                     if (AnalogSeries.First().Values.Count >= 100)
                         AnalogSeries.First().Values.RemoveAt(0);
+                    _realValues.Add(realReading);
                 });
             }
         });
@@ -91,7 +103,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void StopClick(object sender, RoutedEventArgs e) {
+    private void StopClick(object sender, RoutedEventArgs e)
+    {
         _stop = true;
         LoadButton.IsEnabled = true;
         MaxValue.IsEnabled = true;
@@ -100,12 +113,10 @@ public partial class ChartView : INotifyPropertyChanged {
         Start.IsEnabled = true;
         Save.IsEnabled = true;
         Calculate.IsEnabled = true;
-        _realValues = new List<double>();
-        GetRealValue();
-        AnalogSeries.First().Values.Clear();
-        for (var i = 0; i < _values.Count; i++)
-            AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _values[i]));
+        DrawChart();
+
     }
+
 
     private void Channel_OnSelectionChanged(object sender, SelectionChangedEventArgs e) {
         SwitchChannelsConfiguration();
@@ -189,50 +200,86 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void Calculate_Click(object sender, RoutedEventArgs e)
     {
-        ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
-        ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
+        var AAndB = GetAAndB();
 
-        AnalogSeries.First().Values.Clear();
-        for (var i = 0; i < _realValues.Count; i++)
-        {
-            AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
-        }
-        ChartYAxis.Title = "Długość [mm]";
-
-    }
-
-    private void DefaultChartParameters()
-    {
-        ChartYAxis.Title = "Amplitude [V]";
-        AdjustYAxis();
-    }
-
-    private (int a, int b) GetAAndB(int maxRange, int minRange, int maxValue, int minValue)
-    {
-        var a = (maxRange - minRange) / (maxValue - minValue);
-        var Y = a * maxValue + 0;
-        var b = maxRange - Y;
-        return (a, b);
-    }
-    private void GetRealValue()
-    {
-        int maxRange = int.Parse(MaxRange.Text);
-        int minRange = int.Parse(MinRange.Text);
-        int maxValue = (int)MaxValue.Value;
-        int minValue = (int)MinValue.Value;
-        var AAndB = GetAAndB(maxRange, minRange, maxValue, minValue);
-
-
+        _realValues = new List<double>();
         for (var i = 0; i < _values.Count; i++)
         {
             _realValues.Add(_values[i] * AAndB.a + AAndB.b);
         }
+        DrawChart();
+    }
 
+    private void DefaultChartParameters()
+    {
+        ChartYAxis.Title = "Amplituda [V]";
+        AdjustYAxis();
+    }
+
+    private (double a, double b) GetAAndB()
+    {
+        var a = (int.Parse(MaxRange.Text) - int.Parse(MinRange.Text)) / ((double)MaxValue.Value - (double)MinValue.Value);
+        var Y = a * MaxValue.Value + 0;
+        var b = int.Parse(MaxRange.Text) - Y;
+        return (a, b);
     }
 
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
     {
         Regex regex = new Regex("[^0-9]+");
         e.Handled = regex.IsMatch(e.Text);
+    }
+
+    private void ChangeAxis(string mess)
+    {
+        ChartYAxis.Title = mess;
+        if(VoltageValue.IsChecked!=true)
+        {
+            ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
+            ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
+        } else
+        {
+            ChartYAxis.MinValue = Convert.ToDouble(MinValue.Value);
+            ChartYAxis.MaxValue = Convert.ToDouble(MaxValue.Value);
+        }    
+    }
+
+    private void DrawChart()
+    {
+        AnalogSeries.First().Values.Clear();
+        if (VoltageValue.IsChecked == true)
+        {
+            ChangeAxis("Amplituda [V]");
+            for (var i = 0; i < _values.Count; i++)
+            {
+                AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _values[i]));
+            }
+        }
+        else
+        {
+            ChangeAxis("Długość [mm]");
+            for (var i = 0; i < _realValues.Count; i++)
+            {
+                AnalogSeries.First().Values.Add(new ObservablePoint(SamplingMs * i, _realValues[i]));
+            }
+        }
+    }
+
+    private void PhysicalValue_Checked(object sender, RoutedEventArgs e)
+    {
+        ChangeAxis("Długość [mm]");
+        if (_stop==true)
+        {
+            DrawChart();
+        }
+    }
+
+    private void VoltageValue_Checked(object sender, RoutedEventArgs e)
+    {
+        ChangeAxis("Amplituda [V]");
+        if (_stop==true)
+        {
+            DrawChart();
+        }
     }
 }

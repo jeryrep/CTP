@@ -61,6 +61,7 @@ public partial class ChartView : INotifyPropertyChanged {
         Start.IsEnabled = false;
         Stop.IsEnabled = true;
         Save.IsEnabled = false;
+        Calculate.IsEnabled = false;
         _stop = false;
         _service = new AnalogService(Channel.SelectedItem.ToString()!,
             InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083,
@@ -98,6 +99,7 @@ public partial class ChartView : INotifyPropertyChanged {
         Stop.IsEnabled = false;
         Start.IsEnabled = true;
         Save.IsEnabled = true;
+        Calculate.IsEnabled = true;
         _realValues = new List<double>();
         GetRealValue();
         AnalogSeries.First().Values.Clear();

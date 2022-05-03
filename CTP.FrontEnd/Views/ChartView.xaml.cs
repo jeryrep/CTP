@@ -46,6 +46,8 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        _values = new List<double>();
+        _realValues = new List<double>();
         DefaultChartParameters();
         _time = 0;
         AnalogSeries.First().Values.Clear();
@@ -54,8 +56,6 @@ public partial class ChartView : INotifyPropertyChanged {
             return;
         }
 
-        _values = new List<double>();
-        _realValues = new List<double>();
         LoadButton.IsEnabled = false;
         MaxValue.IsEnabled = false;
         MinValue.IsEnabled = false;

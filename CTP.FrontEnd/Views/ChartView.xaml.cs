@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,6 +62,8 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        XMax = 1000;
+        XMin = 0;
         AnalogSeries.ElementAt(1).Values = new ChartValues<ObservablePoint>();
         AnalogSeries.ElementAt(2).Values = new ChartValues<ObservablePoint>();
         _values = new List<double>();
@@ -93,6 +96,14 @@ public partial class ChartView : INotifyPropertyChanged {
             // ignored
         }
 
+        for (int i = 0; i < 100; i++) {
+            var reading = _service.GetAnalogReading();
+            var realReading = reading * AAndB.a + AAndB.b;
+            AnalogSeries.First().Values.Add(VoltageValue.IsChecked == true
+                ? new ObservablePoint(_time, reading)
+                : new ObservablePoint(_time, realReading));
+        }
+
         Task.Run(() => {
             while (!_stop) {
                 Thread.Sleep(SamplingMs);
@@ -105,9 +116,8 @@ public partial class ChartView : INotifyPropertyChanged {
                         : new ObservablePoint(_time, realReading));
 
                     _values.Add(reading);
-                    if (AnalogSeries.First().Values.Count >= 100) {
-                        AnalogSeries.First().Values.RemoveAt(0);
-                    }
+                    XMax = _time;
+                    XMin = _time - 1000;
                     _realValues.Add(realReading);
                 });
             }
@@ -300,4 +310,27 @@ public partial class ChartView : INotifyPropertyChanged {
             DrawChart();
         }
     }
+
+    private double xMax;
+    public double XMax
+    {
+        get => this.xMax;
+        set
+        {
+            this.xMax = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private double xMin;
+    public double XMin
+    {
+        get => this.xMin;
+        set
+        {
+            this.xMin = value;
+            OnPropertyChanged();
+        }
+    }
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

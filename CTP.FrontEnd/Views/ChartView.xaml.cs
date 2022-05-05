@@ -16,6 +16,7 @@ using CTP.Api.Services;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using MathNet.Numerics.Interpolation;
 using Microsoft.Win32;
 
 namespace CTP.FrontEnd.Views; 
@@ -43,9 +44,25 @@ public partial class ChartView : INotifyPropertyChanged {
                 Values = new ChartValues<ObservablePoint>()
             }
         };
+        AnalogSeries.Add(new LineSeries
+        {
+            Title = "Prędkość [m/s]",
+            Stroke = Brushes.Green,
+            Fill = Brushes.Transparent,
+            Values = new ChartValues<ObservablePoint>()
+        });
+        AnalogSeries.Add(new LineSeries
+        {
+            Title = "Przyśpieszenie [m/s^2]",
+            Stroke = Brushes.Blue,
+            Fill = Brushes.Transparent,
+            Values = new ChartValues<ObservablePoint>()
+        });
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        AnalogSeries.ElementAt(1).Values = new ChartValues<ObservablePoint>();
+        AnalogSeries.ElementAt(2).Values = new ChartValues<ObservablePoint>();
         _values = new List<double>();
         _realValues = new List<double>();
         DefaultChartParameters();
@@ -83,17 +100,14 @@ public partial class ChartView : INotifyPropertyChanged {
                 Application.Current.Dispatcher.Invoke(() => {
                     var reading = _service.GetAnalogReading();
                     var realReading = reading * AAndB.a + AAndB.b;
-                    if (VoltageValue.IsChecked == true)
-                    {
-                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, reading));
-                    } else
-                    {
-                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, realReading));
-                    }
-                    
+                    AnalogSeries.First().Values.Add(VoltageValue.IsChecked == true
+                        ? new ObservablePoint(_time, reading)
+                        : new ObservablePoint(_time, realReading));
+
                     _values.Add(reading);
-                    if (AnalogSeries.First().Values.Count >= 100)
+                    if (AnalogSeries.First().Values.Count >= 100) {
                         AnalogSeries.First().Values.RemoveAt(0);
+                    }
                     _realValues.Add(realReading);
                 });
             }
@@ -114,7 +128,11 @@ public partial class ChartView : INotifyPropertyChanged {
         Save.IsEnabled = true;
         Calculate.IsEnabled = true;
         DrawChart();
-
+        var velocity = CubicSpline.InterpolateNatural(Enumerable.Range(0, _realValues.Count).Select(x => (double)x * 10).ToArray(), _realValues.ToArray());
+        for (int i = 0; i < _realValues.Count; i++) {
+            AnalogSeries.ElementAt(1).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate(i * 10)));
+            AnalogSeries.ElementAt(2).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate2(i * 10)));
+        }
     }
 
 

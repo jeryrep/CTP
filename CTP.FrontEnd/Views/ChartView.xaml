@@ -16,12 +16,20 @@
                 <Setter Property="LineSmoothness" Value="0"></Setter>
             </Style>
         </Grid.Resources>
-        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart" DisableAnimations="True">
+        <wpf:CartesianChart Margin="10,156,10,10" x:Name="CartesianChart" DisableAnimations="True">
+            <wpf:CartesianChart.Series>
+                <wpf:LineSeries Configuration="{Binding DataMapper}" Values="{Binding ChartValues}"/>
+            </wpf:CartesianChart.Series>
+            <wpf:CartesianChart.CacheMode>
+                <BitmapCache EnableClearType="False" 
+                             RenderAtScale="1"
+                             SnapsToDevicePixels="False" />
+            </wpf:CartesianChart.CacheMode>
             <wpf:CartesianChart.AxisX>
-                <wpf:Axis x:Name="ChartXAxis" Title="t [ms]"/>
+                <wpf:Axis x:Name="ChartXAxis" Title="t [ms]" DisableAnimations="True" MaxValue="{Binding XMax}" MinValue="{Binding XMin}"/>
             </wpf:CartesianChart.AxisX>
             <wpf:CartesianChart.AxisY>
-                <wpf:Axis x:Name="ChartYAxis" Title="Amplituda [V]"/>
+                <wpf:Axis x:Name="ChartYAxis" Title="Amplituda [V]" LabelFormatter="{Binding LabelFormatter}"/>
             </wpf:CartesianChart.AxisY>
         </wpf:CartesianChart>
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="60" Click="StartClick" Style="{StaticResource ButtonRevealStyle}" x:Name="Start" RenderTransformOrigin="0.503,0.768"/>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +14,11 @@ using System.Windows.Media;
 using ArrayToExcel;
 using CTP.Api.Interfaces;
 using CTP.Api.Services;
+using CTP.FrontEnd.Models;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using MathNet.Numerics.Interpolation;
 using Microsoft.Win32;
 
 namespace CTP.FrontEnd.Views; 
@@ -37,12 +40,24 @@ public partial class ChartView : INotifyPropertyChanged {
         IAcCardService cardService = new AcCardService();
         Channel.ItemsSource = cardService.GetChannels();
         Stop.IsEnabled = false;
-        AnalogSeries = new SeriesCollection {
+        /*AnalogSeries = new SeriesCollection {
             new LineSeries {
                 Fill = Brushes.Transparent,
                 Values = new ChartValues<ObservablePoint>()
+            },
+            new LineSeries {
+                Title = "Prędkość [m/s]",
+                Stroke = Brushes.Green,
+                Fill = Brushes.Transparent,
+                Values = new ChartValues<ObservablePoint>()
+            },
+            new LineSeries {
+                Title = "Przyśpieszenie [m/s^2]",
+                Stroke = Brushes.Blue,
+                Fill = Brushes.Transparent,
+                Values = new ChartValues<ObservablePoint>()
             }
-        };
+        };*/
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
@@ -50,7 +65,7 @@ public partial class ChartView : INotifyPropertyChanged {
         _realValues = new List<double>();
         DefaultChartParameters();
         _time = 0;
-        AnalogSeries.First().Values.Clear();
+        //AnalogSeries.First().Values.Clear();
         if ((int)MinValue.Value >= (int)MaxValue.Value) {
             MessageBox.Show("Minimalna wartość musi być mniejsza od maksymalnej wartości", "Błąd");
             return;
@@ -68,6 +83,7 @@ public partial class ChartView : INotifyPropertyChanged {
         _service = new AnalogService(Channel.SelectedItem.ToString()!,
             InputConfig.SelectedItem.ToString()!.Equals("Synchroniczny") ? 10106 : 10083,
             Convert.ToInt32(MinValue.Value), Convert.ToInt32(MaxValue.Value));
+        DataContext = new DataModel(_service);
         var AAndB = GetAAndB();
         try {
             AnalogSeries.First().Values.RemoveAt(0);
@@ -76,32 +92,25 @@ public partial class ChartView : INotifyPropertyChanged {
             // ignored
         }
 
-        Task.Run(() => {
+        /*Task.Run(() => {
             while (!_stop) {
                 Thread.Sleep(SamplingMs);
                 _time += SamplingMs;
                 Application.Current.Dispatcher.Invoke(() => {
                     var reading = _service.GetAnalogReading();
                     var realReading = reading * AAndB.a + AAndB.b;
-                    if (VoltageValue.IsChecked == true)
-                    {
-                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, reading));
-                    } else
-                    {
-                        AnalogSeries.First().Values.Add(new ObservablePoint(_time, realReading));
-                    }
-                    
+                    AnalogSeries.First().Values.Add(VoltageValue.IsChecked == true
+                        ? new ObservablePoint(_time, reading)
+                        : new ObservablePoint(_time, realReading));
+
                     _values.Add(reading);
                     if (AnalogSeries.First().Values.Count >= 100)
                         AnalogSeries.First().Values.RemoveAt(0);
                     _realValues.Add(realReading);
                 });
             }
-        });
-        DataContext = this;
+        });*/
     }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     private void StopClick(object sender, RoutedEventArgs e)
     {
@@ -114,7 +123,11 @@ public partial class ChartView : INotifyPropertyChanged {
         Save.IsEnabled = true;
         Calculate.IsEnabled = true;
         DrawChart();
-
+        var velocity = CubicSpline.InterpolateNatural(Enumerable.Range(0, _realValues.Count).Select(x => (double)x * 10).ToArray(), _realValues.ToArray());
+        for (int i = 0; i < _realValues.Count; i++) {
+            AnalogSeries.ElementAt(1).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate(i * 10)));
+            AnalogSeries.ElementAt(2).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate2(i * 10)));
+        }
     }
 
 
@@ -281,5 +294,11 @@ public partial class ChartView : INotifyPropertyChanged {
         {
             DrawChart();
         }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

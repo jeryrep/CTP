@@ -189,13 +189,66 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void InputConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) => SwitchChannelVoltageRange();
 
-    //TODO: Zaimplementować wczytywanie danych na wykres z csv z teamsa
-    private void LoadButton_Click(object sender, RoutedEventArgs e) {
-        string path;
-        /*var openFile = new OpenFileDialog();
-        if (openFile.ShowDialog()) {
-            path = File
-        }*/
+    private void LoadButton_Click(object sender, RoutedEventArgs e)
+    {
+        _values = new List<double>();
+        _realValues = new List<double>();
+
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "CSV files (*.csv)|*.csv";
+
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+
+            using (var reader = new StreamReader(openFileDialog.FileName))
+            {
+
+                reader.ReadLine();
+
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split('\t');
+
+                    _values.Add(double.Parse(values[1]));
+                    _realValues.Add(double.Parse(values[2]));
+                }
+            }
+
+            DataContext = this;
+            DrawChart();
+
+        }
+
+        /*
+         * Nie dziala excel instalowalem pakiet EPPlus ale nie wiem czemu 
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            var ep = new ExcelPackage(new FileInfo(openFileDialog.FileName));
+            var ws = ep.Workbook.Worksheets.FirstOrDefault();
+
+            MessageBox.Show(ws.ToString());
+
+            int colCount = (int)ws.Dimension.End.Column;  
+            int rowCount = ws.Dimension.End.Row;
+
+            for (int col = 2; col <= ws.Dimension.End.Column; col++)
+                {
+                    for (int rw = 2; rw <= ws.Dimension.End.Row; rw++)
+                    {               
+                        if (ws.Cells[rw, 2].Value != null)
+                            _values.Add((double)ws.Cells[rw, 2].Value);
+                        if (ws.Cells[rw, 3].Value != null)
+                            _realValues.Add((double)ws.Cells[rw, 3].Value);
+                    }
+            }
+        }
+        DrawChart();
+        */
+
     }
 
     private void Calculate_Click(object sender, RoutedEventArgs e)

@@ -16,7 +16,7 @@
                 <Setter Property="LineSmoothness" Value="0"></Setter>
             </Style>
         </Grid.Resources>
-        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart" DisableAnimations="True">
+        <wpf:CartesianChart Margin="10,156,10,10" Series="{Binding AnalogSeries}" x:Name="CartesianChart" DisableAnimations="True" Zoom="Xy">
             <wpf:CartesianChart.AxisX>
                 <wpf:Axis x:Name="ChartXAxis" Title="t [ms]"/>
             </wpf:CartesianChart.AxisX>

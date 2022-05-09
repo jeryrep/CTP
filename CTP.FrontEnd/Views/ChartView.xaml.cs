@@ -16,6 +16,7 @@ using CTP.Api.Services;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using MathNet.Numerics.Interpolation;
 using Microsoft.Win32;
 
 namespace CTP.FrontEnd.Views; 
@@ -31,6 +32,7 @@ public partial class ChartView : INotifyPropertyChanged {
     private List<double> _realValues;
     public static volatile bool _stop;
     private double _time;
+    private CubicSpline _spline;
 
     public ChartView() {
         InitializeComponent();
@@ -46,6 +48,7 @@ public partial class ChartView : INotifyPropertyChanged {
     }
 
     private void StartClick(object sender, RoutedEventArgs e) {
+        CartesianChart.Zoom = ZoomingOptions.None;
         _values = new List<double>();
         _realValues = new List<double>();
         DefaultChartParameters();
@@ -103,8 +106,8 @@ public partial class ChartView : INotifyPropertyChanged {
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void StopClick(object sender, RoutedEventArgs e)
-    {
+    private void StopClick(object sender, RoutedEventArgs e) {
+        CartesianChart.Zoom = ZoomingOptions.Xy;
         _stop = true;
         LoadButton.IsEnabled = true;
         MaxValue.IsEnabled = true;
@@ -114,7 +117,26 @@ public partial class ChartView : INotifyPropertyChanged {
         Save.IsEnabled = true;
         Calculate.IsEnabled = true;
         DrawChart();
-
+        AnalogSeries.Add(new LineSeries
+        {
+            Title = "Prędkość [m/s]",
+            Stroke = Brushes.Green,
+            Fill = Brushes.Transparent,
+            Values = new ChartValues<ObservablePoint>()
+        });
+        AnalogSeries.Add(new LineSeries
+        {
+            Title = "Przyśpieszenie [m/s^2]",
+            Stroke = Brushes.Blue,
+            Fill = Brushes.Transparent,
+            Values = new ChartValues<ObservablePoint>()
+        });
+        _spline = CubicSpline.InterpolatePchip(Enumerable.Range(0, _realValues.Count).Select(x => (double)x * 10).ToArray(), _realValues.ToArray());
+        for (int i = 0; i < _realValues.Count; i++)
+        {
+            AnalogSeries.ElementAt(1).Values.Add(new ObservablePoint(i * 10, _spline.Differentiate(i * 10)));
+            AnalogSeries.ElementAt(2).Values.Add(new ObservablePoint(i * 10, _spline.Differentiate2(i * 10)));
+        }
     }
 
 
@@ -178,7 +200,9 @@ public partial class ChartView : INotifyPropertyChanged {
         {
             Time = (double)(x * SamplingMs) / 1000,
             Reading = _values[x],
-            RealValues = _realValues[x]
+            RealValues = _realValues[x],
+            Velocity = _spline.Differentiate(x * 10),
+            Acceleration = _spline.Differentiate2(x * 10)
         }).ToExcel(x => x.SheetName("DAQMx Reading Session"));
         File.WriteAllBytes(saveFileDialog.FileName, items);
     }
@@ -189,13 +213,68 @@ public partial class ChartView : INotifyPropertyChanged {
 
     private void InputConfig_SelectionChanged(object sender, SelectionChangedEventArgs e) => SwitchChannelVoltageRange();
 
-    //TODO: Zaimplementować wczytywanie danych na wykres z csv z teamsa
-    private void LoadButton_Click(object sender, RoutedEventArgs e) {
-        string path;
-        /*var openFile = new OpenFileDialog();
-        if (openFile.ShowDialog()) {
-            path = File
-        }*/
+    private void LoadButton_Click(object sender, RoutedEventArgs e)
+    {
+        _values = new List<double>();
+        _realValues = new List<double>();
+
+        var openFileDialog = new OpenFileDialog {
+            Filter = "CSV files (*.csv)|*.csv"
+        };
+
+
+        if (openFileDialog.ShowDialog() != true) return;
+        using (var reader = new StreamReader(openFileDialog.FileName))
+        {
+
+            reader.ReadLine();
+
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                var values = line.Split('\t');
+
+                _values.Add(double.Parse(values[1]));
+                _realValues.Add(double.Parse(values[2]));
+            }
+        }
+        var velocity = CubicSpline.InterpolateNatural(Enumerable.Range(0, _realValues.Count).Select(x => (double)x * 10).ToArray(), _realValues.ToArray());
+        for (int i = 0; i < _realValues.Count; i++)
+        {
+            AnalogSeries.ElementAt(1).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate(i * 10)));
+            AnalogSeries.ElementAt(2).Values.Add(new ObservablePoint(i * 10, velocity.Differentiate2(i * 10)));
+        }
+        DataContext = this;
+        DrawChart();
+
+        /*
+         * Nie dziala excel instalowalem pakiet EPPlus ale nie wiem czemu 
+        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            var ep = new ExcelPackage(new FileInfo(openFileDialog.FileName));
+            var ws = ep.Workbook.Worksheets.FirstOrDefault();
+
+            MessageBox.Show(ws.ToString());
+
+            int colCount = (int)ws.Dimension.End.Column;  
+            int rowCount = ws.Dimension.End.Row;
+
+            for (int col = 2; col <= ws.Dimension.End.Column; col++)
+                {
+                    for (int rw = 2; rw <= ws.Dimension.End.Row; rw++)
+                    {               
+                        if (ws.Cells[rw, 2].Value != null)
+                            _values.Add((double)ws.Cells[rw, 2].Value);
+                        if (ws.Cells[rw, 3].Value != null)
+                            _realValues.Add((double)ws.Cells[rw, 3].Value);
+                    }
+            }
+        }
+        DrawChart();
+        */
+
     }
 
     private void Calculate_Click(object sender, RoutedEventArgs e)
@@ -233,8 +312,7 @@ public partial class ChartView : INotifyPropertyChanged {
     private void ChangeAxis(string mess)
     {
         ChartYAxis.Title = mess;
-        if(VoltageValue.IsChecked!=true)
-        {
+        if(VoltageValue.IsChecked!=true) {
             ChartYAxis.MinValue = Convert.ToDouble(MinRange.Text);
             ChartYAxis.MaxValue = Convert.ToDouble(MaxRange.Text);
         } else

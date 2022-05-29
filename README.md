@@ -47,6 +47,7 @@ lub [Jetbrains Rider](https://www.jetbrains.com/rider/)
 3. Jarosław Morński
 4. Damian Mirek
 5. Mateusz Nowobilski
+6. Krzysztof Bętkowski (jedna funkcja w ramach współpracy międzygrupowej)
 ## Licencja
 Projekt jest licencjonowany przez licencję GNU GPL 3. Postanowienia znajdują się w pliku LICENSE.txt
 

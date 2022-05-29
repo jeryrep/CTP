@@ -49,5 +49,4 @@ lub [Jetbrains Rider](https://www.jetbrains.com/rider/)
 5. Mateusz Nowobilski
 ## Licencja
 Projekt jest licencjonowany przez licencję GNU GPL 3. Postanowienia znajdują się w pliku LICENSE.txt
-## Podsumowanie
 
